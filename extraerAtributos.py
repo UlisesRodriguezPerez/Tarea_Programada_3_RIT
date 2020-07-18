@@ -33,7 +33,7 @@ for a in soup.findAll("body"):
 
 
 for b in soup.findAll("topics"):
-    topics.append(b)
+    topics.append(b)        
     
 
 for item in soup.findAll('REUTERS'):
