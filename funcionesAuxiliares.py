@@ -43,5 +43,11 @@ def eliminarStopWords(texto):
         
     return textoSinStopWords
 
-#eliminarStopWords()
+def eliminarComasEntreNumeros(texto):    
+    import re
+    nuevoTexto = re.sub(',(?=[^\d+]*\d+[^\d+]*(?:\d+[^\d+]*\d+[^\d+]*)*$)',"", texto)   #Expresión regular que elimina las comas entre puntos.
+    return nuevoTexto
+
+# eliminarStopWords()
 # extraerColeccion()
+# eliminarComasEntreNumeros(texto)
