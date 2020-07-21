@@ -1,4 +1,4 @@
-import arff
+# import arff
 from xml.etree import ElementTree
 import re
 from io import StringIO
@@ -12,32 +12,67 @@ import codecs
 from funcionesAuxiliares import eliminarStopWords, eliminarComasEntreNumeros
 
 
-def leerColeccion():
+def leerColeccion(archivo):
     textoTotal =""
+    ListaArticulos = []
 
-    with open('reut2-001.sgm', 'r') as inF:
+
+    with open(archivo, 'r') as inF:
         for line in inF:
-            texto = re.sub("[^0-9a-zA-Z<>/\s=!-\"\"]+","", line)#Pendinete ver cuales son permitidos
+            texto = re.sub("[^0-9a-zA-Z<>/\\s=!-\"\"]+","", line)#Pendinete ver cuales son permitidos
             textoTotal += texto 
-    # print(textoTotal)
+
     soup = BeautifulSoup(textoTotal,"html.parser")
 
-    bodies = list()
-    topics = list()
-    tags = list()
+    a = 0
+    Clases = dict()
+    for articulo in soup.findAll('reuters'):
+        ID = articulo["newid"]
+        if articulo["topics"] == "YES" and articulo.topics.text != '' and articulo.body != None:
+            Topics = articulo.topics.text
+            Body = articulo.body.text
+            if Body[len(Body)-1] == '3':
+                Body = Body[:-1]
+            
+            if Topics in Clases:
+                valor = Clases[Topics]
+                print ("VALOR: ", valor)
+                Clases[Topics] = valor+1
+            else:
+                Clases[Topics] = 1
+                
+            HayTopics = articulo["topics"]
 
-    for a in soup.findAll("body"):
-        a = eliminarStopWords(str(a))       #Elimina los stopWords de cada body.
-        a = eliminarComasEntreNumeros(a)    #Elimina las comas entre números.
-        bodies.append(a)
-        
-    for b in soup.findAll("topics"):
-        topics.append(b)        
-        
-    for item in soup.findAll('reuters'):
-        print(item)
-        
-        tags.append(item['title'])
+            print(Topics)
+            print(ID)
+            print (Body)
+            print(HayTopics)
+
+        a+=1
+        if a == 10:
+            break
+    with open("clases.txt","w",encoding="UTF-8") as archivoClases:
+        for item in Clases:
+            archivoClases.write(item+"\t"+str(Clases[item])+"\n")
+    print (Clases.items())
+    
+
+    
+
+
+    # for b in soup.findAll("topics"):
+    #     topics.append(b)        
+
+    
+
+# for a in soup.findAll("body"):
+#         a = eliminarStopWords(str(a))       #Elimina los stopWords de cada body.
+#         a = eliminarComasEntreNumeros(a)    #Elimina las comas entre números.
+#         bodies.append(a)
+
+    # print("\n\n\n\n\n\n\n\n\nBodies:\n",bodies)
+    # print("\n\n\n\n\n\n\n\n\nTopics:\n",topics)
+    # print("\n\n\n\n\n\n\n\n\nTags:\n",tags)
 
 # def get_articles(file_path):
 #       import bs4
@@ -56,7 +91,3 @@ def leerColeccion():
 #           if [] not in article.values():
 #             articles.append(article)
 #       return articles
-
-# print("\n\n\n\n\n\n\n\n\nBodies:\n",bodies)
-# print("\n\n\n\n\n\n\n\n\nTopics:\n",topics)
-# print("\n\n\n\n\n\n\n\n\nTags:\n",tags)

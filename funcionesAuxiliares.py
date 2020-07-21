@@ -1,3 +1,5 @@
+# coding=<UTF-8>
+
 import io 
 from nltk.corpus import stopwords 
 from nltk.tokenize import word_tokenize 
@@ -49,4 +51,4 @@ def eliminarComasEntreNumeros(texto):
 
 # eliminarStopWords()
 # extraerColeccion()
-eliminarComasEntreNumeros("Hola como estas, te debo 800,00.20 colones")
+# eliminarComasEntreNumeros("Hola como estas, te debo 800,00.20 colones")
