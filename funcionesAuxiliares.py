@@ -3,6 +3,7 @@
 import io 
 from nltk.corpus import stopwords 
 from nltk.tokenize import word_tokenize 
+import operator
 
 # def extraerColeccion():
 #     f = open("reut2-001.sgm", "r")
@@ -13,7 +14,7 @@ from nltk.tokenize import word_tokenize
     
 
 
-def eliminarStopWords(texto):
+def eliminarStopWords(texto):# Funcion para eliminar stopWords, pendiente hacerla de manera que  lea de un txt.
 
     stop_words = ["a", "about", "above", "after", "again", "against", "all", "am", "an", "and", "any",
                 "are", "aren't", "as", "at", "be", "because", "been", "before", "being", "below", "between", "both",
@@ -44,10 +45,37 @@ def eliminarStopWords(texto):
         #     print(palabra)
     return textoSinStopWords
 
-def eliminarComasEntreNumeros(texto):    
+
+def eliminarComasEntreNumeros(texto): 
     import re
     nuevoTexto = re.sub('(?<=\\d),(?=\\d)',"", texto)   #Expresión regular que elimina las comas entre puntos.
     return nuevoTexto
+
+
+
+def generarClasesTxt(Clases, ListaArticulos, minNc): #Esta funcion genera el txt de clases y llama a la funcion para generar el txt de Docs. Deben de ser complementarias.
+    topicsAceptados = dict()             #El diccionario de topis aceptados es para saber cuales si son aceptados por minNc
+    Clases = sorted(Clases.items(), key=operator.itemgetter(1), reverse = True)
+    with open("clases.txt","w",encoding="UTF-8") as archivoClases:
+        for item in Clases:
+            if item[1] < minNc:
+                break
+            else:
+                archivoClases.write(str(item[0]) + "\t" + str(item[1]) + "\n")
+                topicsAceptados[item[0]] = 1
+                
+    generarDocsTxt(topicsAceptados,ListaArticulos,minNc)       
+
+
+def generarDocsTxt(topicsAceptados,ListaDeArticulos,minNc):
+
+    with open("docs.txt","w",encoding="UTF-8") as archivoDocs:
+        for articulo in ListaDeArticulos:
+            if articulo[0] in topicsAceptados: #Si el articulo se encuentra en el dicc de topics aceptados, significa que también está en las clases restringidas.
+                archivoDocs.write(str(articulo[1]) + "\t" + articulo[0] + "\n")   #El formato es (ID, Clase a la que pertenece)
+    
+
+        
 
 # eliminarStopWords()
 # extraerColeccion()

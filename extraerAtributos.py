@@ -8,14 +8,13 @@ from unicodedata import normalize
 import requests                 #pip install requests
 import urllib.request
 import string
+import operator
 import codecs
-from funcionesAuxiliares import eliminarStopWords, eliminarComasEntreNumeros
+from funcionesAuxiliares import *
 
-
-def leerColeccion(archivo):
+def leerColeccion(archivo, minNc):
     textoTotal =""
     ListaArticulos = []
-
 
     with open(archivo, 'r') as inF:
         for line in inF:
@@ -30,31 +29,40 @@ def leerColeccion(archivo):
         ID = articulo["newid"]
         if articulo["topics"] == "YES" and articulo.topics.text != '' and articulo.body != None:
             Topics = articulo.topics.text
+            #print(Topics)                                            #PENDIENTE OBTENER SOLO UHN TOPICS SIEMPRE.
             Body = articulo.body.text
             if Body[len(Body)-1] == '3':
                 Body = Body[:-1]
             
             if Topics in Clases:
                 valor = Clases[Topics]
-                print ("VALOR: ", valor)
                 Clases[Topics] = valor+1
             else:
                 Clases[Topics] = 1
                 
             HayTopics = articulo["topics"]
 
-            print(Topics)
-            print(ID)
-            print (Body)
-            print(HayTopics)
+            # print(Topics)
+            # print(ID)
+            # print (Body)
+            # print(HayTopics)
+            ListaArticulos.append([Topics,ID,Body,HayTopics])
 
-        a+=1
-        if a == 10:
-            break
-    with open("clases.txt","w",encoding="UTF-8") as archivoClases:
-        for item in Clases:
-            archivoClases.write(item+"\t"+str(Clases[item])+"\n")
-    print (Clases.items())
+        # a+=1
+        # if a == 10:
+        #     break
+    generarClasesTxt(Clases, ListaArticulos, minNc)
+    
+    # Clases = sorted(Clases.items(), key=operator.itemgetter(1), reverse = True)
+    
+    # with open("clases.txt","w",encoding="UTF-8") as archivoClases:
+    #     for item in Clases:
+    #         if item[1] < minNc:
+    #             break
+    #         else:
+    #             archivoClases.write(str(item[0]) + "\t" + str(item[1]) + "\n")
+            
+    #print (Clases)
     
 
     
