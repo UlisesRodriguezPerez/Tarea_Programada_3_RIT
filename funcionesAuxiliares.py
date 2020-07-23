@@ -14,11 +14,7 @@ import re
 #         print (a)
 #     # print(coleccion)
     
-
-
-def eliminarStopWords(texto):# Funcion para eliminar stopWords, pendiente hacerla de manera que  lea de un txt.
-
-    stop_words = ["a", "about", "above", "after", "again", "against", "all", "am", "an", "and", "any",
+stop_words = ["a", "about", "above", "after", "again", "against", "all", "am", "an", "and", "any",
                 "are", "aren't", "as", "at", "be", "because", "been", "before", "being", "below", "between", "both",
                 "but", "by", "can't", "cannot", "could", "couldn't", "did", "didn't", "do", "does", "doesn't", "doing",
                 "don't", "down", "during", "each", "few", "for", "from", "further", "had", "hadn't", "has", "hasn't", "have",
@@ -32,6 +28,9 @@ def eliminarStopWords(texto):# Funcion para eliminar stopWords, pendiente hacerl
                 "we've", "were", "weren't", "what", "what's", "when", "when's", "where", "where's", "which", "while", "who", "who's", 
                 "whom", "why", "why's","with", "won't", "would", "wouldn't", "you", "you'd", "you'll", "you're", "you've", "your", 
                 "yours", "yourself"] 
+
+def eliminarStopWords(texto):# Funcion para eliminar stopWords, pendiente hacerla de manera que  lea de un txt.
+
     #file1 = open("textoDePrueba.txt","r")
     #line = file1.read() #lee el archivo en secuencia.
     textoSinStopWords = ""
@@ -65,6 +64,7 @@ def generarClasesTxt(Clases, listaArticulos, minNc): #Esta funcion genera el txt
     print( "Tardó ", final-inicio, " segundos en generar 'clases.txt'.")
     generarDocsTxt(topicsAceptados,listaArticulos,minNc)  
 
+    #SUGERENCIA
     #inicio = default_timer()
     # Clases = sorted(Clases.items(), key=operator.itemgetter(1), reverse = True)
     # with open("clases.txt","w",encoding="UTF-8") as archivoClases:
@@ -113,7 +113,8 @@ def generarDiccTxt(listaDeArticulosPermitidos):
     with open("dicc.txt","w",encoding="UTF-8") as archivoDiccs: #Se genera el archivo de texto "dics.txt"
         for palabra in listaDePalabras:
             palabraFiltrada = re.sub("[^a-z\\d+.\\/]","",palabra[0])
-            archivoDiccs.write(str(palabraFiltrada) + "\t" + str(palabra[1]) + "\n") 
+            if palabraFiltrada not in stop_words:
+                archivoDiccs.write(str(palabraFiltrada) + "\t" + str(palabra[1]) + "\n") 
     
     final = default_timer()
     print( "Tardó ", final-inicio, " segundos en generar 'dicc.txt'.")
