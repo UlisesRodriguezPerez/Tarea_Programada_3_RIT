@@ -5,6 +5,7 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize 
 from timeit import default_timer
 import operator
+import re
 
 # def extraerColeccion():
 #     f = open("reut2-001.sgm", "r")
@@ -35,7 +36,7 @@ def eliminarStopWords(texto):# Funcion para eliminar stopWords, pendiente hacerl
     #line = file1.read() #lee el archivo en secuencia.
     textoSinStopWords = ""
     separador = " "
-    palabrasDelTexto = texto.split(separador) #separa las plaabras del texto.
+    palabrasDelTexto = texto.split(separador) #separa las palabras del texto.
     for palabra in palabrasDelTexto: 
         if not palabra in stop_words: 
             textoSinStopWords += palabra + " "
@@ -44,15 +45,14 @@ def eliminarStopWords(texto):# Funcion para eliminar stopWords, pendiente hacerl
 
 
 def eliminarComasEntreNumeros(texto): 
-    import re
-    nuevoTexto = re.sub('(?<=\\d),(?=\\d)',"", texto)   #Expresión regular que elimina las comas entre puntos.
+    nuevoTexto = re.sub('(?<=\\d),(?=\\d)',"", texto)   #Expresión regular que elimina las comas entre numeros.
     return nuevoTexto
 
 
 
 def generarClasesTxt(Clases, listaArticulos, minNc): #Esta funcion genera el txt de clases y llama a la funcion para generar el txt de Docs. Deben de ser complementarias.
     inicio = default_timer()
-    topicsAceptados = dict()             #El diccionario de topis aceptados es para saber cuales si son aceptados por minNc
+    topicsAceptados = dict()             #El diccionario de topics aceptados es para saber cuales si son aceptados por minNc
     Clases = sorted(Clases.items(), key=operator.itemgetter(1), reverse = True)
     with open("clases.txt","w",encoding="UTF-8") as archivoClases:
         for item in Clases:
@@ -63,7 +63,19 @@ def generarClasesTxt(Clases, listaArticulos, minNc): #Esta funcion genera el txt
                 topicsAceptados[item[0]] = 1
     final = default_timer()
     print( "Tardó ", final-inicio, " segundos en generar 'clases.txt'.")
-    generarDocsTxt(topicsAceptados,listaArticulos,minNc)       
+    generarDocsTxt(topicsAceptados,listaArticulos,minNc)  
+
+    #inicio = default_timer()
+    # Clases = sorted(Clases.items(), key=operator.itemgetter(1), reverse = True)
+    # with open("clases.txt","w",encoding="UTF-8") as archivoClases:
+    #     for item in Clases:
+    #         if item[1] < minNc:
+    #           Clases.pop(item[0])
+    #         else:
+    #             archivoClases.write(str(item[0]) + "\t" + str(item[1]) + "\n")
+    # final = default_timer()
+    # print( "Tardó ", final-inicio, " segundos en generar 'clases.txt'.")
+    # generarDocsTxt(Clases,listaArticulos,minNc)      
 
 
 
@@ -91,16 +103,17 @@ def generarDiccTxt(listaDeArticulosPermitidos):
         contadorDeArticulos = 0
         contador_ni = 0
         while contadorDeArticulos < len(listaDeDiccionarios):   #recorre la lista de diccionarios, uno para cada artículo y contar el "ni".
-            if palabra in listaDeDiccionarios[contadorDeArticulos]:
+            if palabra in listaDeDiccionarios[contadorDeArticulos]: # Solo identifica si la palabra esta, no cuantas veces aparece en cada documento.
                 contador_ni += 1
             contadorDeArticulos +=1
         listaDePalabras.append([palabra,contador_ni])   #Se agregan a una lista, para despues ordenarla de mayor a menor.
 
-    listaDePalabras = sorted(listaDePalabras,key=operator.itemgetter(1), reverse = True)    #Se ordena la lista con respecto a ca antidad de "ni" de cada palabra.
+    listaDePalabras = sorted(listaDePalabras,key=operator.itemgetter(1), reverse = True)    #Se ordena la lista con respecto a caantidad de "ni" de cada palabra.
 
     with open("dicc.txt","w",encoding="UTF-8") as archivoDiccs: #Se genera el archivo de texto "dics.txt"
         for palabra in listaDePalabras:
-            archivoDiccs.write(str(palabra[0]) + "\t" + str(palabra[1]) + "\n") 
+            palabraFiltrada = re.sub("[^a-z\\d+.\\/]","",palabra[0])
+            archivoDiccs.write(str(palabraFiltrada) + "\t" + str(palabra[1]) + "\n") 
     
     final = default_timer()
     print( "Tardó ", final-inicio, " segundos en generar 'dicc.txt'.")
@@ -139,8 +152,8 @@ def generarDiccionario(articulo):   #Genera el diccionario del artículo que se 
     articulo = articulo.split()        #Se separa en palabras.
     for palabra in articulo:
         if palabra in diccionarioDelArticulo:
-                valor = diccionarioDelArticulo[palabra]
-                diccionarioDelArticulo[palabra] = valor+1
+            valor = diccionarioDelArticulo[palabra]
+            diccionarioDelArticulo[palabra] = valor+1
         else:
             diccionarioDelArticulo[palabra] = 1
     return diccionarioDelArticulo  
