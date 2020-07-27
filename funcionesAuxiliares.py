@@ -49,12 +49,12 @@ def eliminarStopWords(texto):# Funcion para eliminar stopWords, pendiente hacerl
 
 
 def eliminarComasEntreNumeros(texto): 
-    nuevoTexto = re.sub('(?<=\\d),(?=\\d)',"", texto)   #Expresión regular que elimina las comas entre numeros.
+    nuevoTexto = re.sub('^((?<=\\d).(?=\\d))',"", texto)   #Expresión regular que elimina las comas entre numeros.
     return nuevoTexto
 
 
 
-def generarClasesTxt(Clases, listaArticulos, minNc): #Esta funcion genera el txt de clases y llama a la funcion para generar el txt de Docs. Deben de ser complementarias.
+def generarClasesTxt(Clases, listaArticulos, minNc,minNi): #Esta funcion genera el txt de clases y llama a la funcion para generar el txt de Docs. Deben de ser complementarias.
     inicio = default_timer()
     topicsAceptados = dict()             #El diccionario de topics aceptados es para saber cuales si son aceptados por minNc
     Clases = sorted(Clases.items(), key=operator.itemgetter(1), reverse = True)
@@ -67,7 +67,7 @@ def generarClasesTxt(Clases, listaArticulos, minNc): #Esta funcion genera el txt
                 topicsAceptados[item[0]] = 1
     final = default_timer()
     print( "Tardó ", final-inicio, " segundos en generar 'clases.txt'.")
-    generarDocsTxt(topicsAceptados,listaArticulos,minNc)  
+    generarDocsTxt(topicsAceptados,listaArticulos,minNc,minNi)  
 
     #SUGERENCIA
     #inicio = default_timer()
@@ -84,7 +84,7 @@ def generarClasesTxt(Clases, listaArticulos, minNc): #Esta funcion genera el txt
 
 
 
-def generarDocsTxt(topicsAceptados,listaDeArticulos,minNc):
+def generarDocsTxt(topicsAceptados,listaDeArticulos,minNc,minNi):
     inicio = default_timer()
     listaDeArticulosPermitidos = []
     with open("docs.txt","w",encoding="UTF-8") as archivoDocs:
@@ -94,23 +94,25 @@ def generarDocsTxt(topicsAceptados,listaDeArticulos,minNc):
                 listaDeArticulosPermitidos.append(articulo)
     final = default_timer()
     print( "Tardó ", final-inicio, " segundos en generar 'docs.txt'.")
-    generarDiccTxt(listaDeArticulosPermitidos)
+    generarDiccTxt(listaDeArticulosPermitidos,minNi)
 
 
 
-def generarDiccTxt(listaDeArticulosPermitidos):
+def generarDiccTxt(listaDeArticulosPermitidos,minNi):
     inicio = default_timer()
-    listaDeDiccionarios = generarListaDeDiccionarios(listaDeArticulosPermitidos)  #Se llama la función "generarListaDeDiccionarios" para nada más proceder a la comparación.
+    #listaDeDiccionarios = generarListaDeDiccionarios(listaDeArticulosPermitidos)  #Se llama la función "generarListaDeDiccionarios" para nada más proceder a la comparación.
     diccionarioGeneral = generarDiccionarioGeneral(listaDeArticulosPermitidos)  #Genera un diccionario, con todas las palabras de la colección.
     listaDePalabras = []
 
     for palabra in diccionarioGeneral: #Recorre todas las palabras de la colección(sección body).
         contadorDeArticulos = 0
         contador_ni = 0
-        while contadorDeArticulos < len(listaDeDiccionarios):   #recorre la lista de diccionarios, uno para cada artículo y contar el "ni".
-            if palabra in listaDeDiccionarios[contadorDeArticulos]: # Solo identifica si la palabra esta, no cuantas veces aparece en cada documento.
+        while contadorDeArticulos < len(listaDeArticulosPermitidos):   #recorre la lista de diccionarios, uno para cada artículo y contar el "ni".
+            if palabra in listaDeArticulosPermitidos[contadorDeArticulos][2]: # Solo identifica si la palabra esta, no cuantas veces aparece en cada documento.
                 contador_ni += 1
             contadorDeArticulos +=1
+        if contador_ni < minNi:
+            break
         listaDePalabras.append([palabra,contador_ni])   #Se agregan a una lista, para despues ordenarla de mayor a menor.
 
     listaDePalabras = sorted(listaDePalabras,key=operator.itemgetter(1), reverse = True)    #Se ordena la lista con respecto a caantidad de "ni" de cada palabra.
@@ -141,33 +143,3 @@ def generarDiccionarioGeneral(listaDeArticulosPermitidos):  #Genera un diccionar
                 diccionarioGeneral[palabra] = 1
     return diccionarioGeneral
 
-
-
-def generarListaDeDiccionarios(listaDeArticulosPermitidos):
-    listaDeDiccionarios = [] #La lista de diccionarios contiene el diccionrio de cada artículo, para facilitar el conteo del "ni" de cada término.
-    for articulo in listaDeArticulosPermitidos:
-        nuevoDicc = generarDiccionario(articulo[2])
-        listaDeDiccionarios.append(nuevoDicc)
-    return listaDeDiccionarios
-
-
-
-def generarDiccionario(articulo):   #Genera el diccionario del artículo que se le de por parametro.
-    diccionarioDelArticulo = dict()
-    articulo = articulo.lower()        #Se pasan a minúsculas.
-    articulo = articulo.split()        #Se separa en palabras.
-    for palabra in articulo:
-        if palabra in diccionarioDelArticulo:
-            valor = diccionarioDelArticulo[palabra]
-            diccionarioDelArticulo[palabra] = valor+1
-        else:
-            diccionarioDelArticulo[palabra] = 1
-    return diccionarioDelArticulo  
-
-
-
-        
-
-# eliminarStopWords()
-# extraerColeccion()
-# eliminarComasEntreNumeros("Hola como estas, te debo 800,00.20 colones")

@@ -1,1 +1,2 @@
-earn	2
+earn	219
+acq	82

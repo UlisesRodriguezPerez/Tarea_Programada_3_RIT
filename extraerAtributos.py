@@ -13,7 +13,7 @@ from timeit import default_timer
 import codecs
 from funcionesAuxiliares import *
 
-def leerColeccion(archivo, minNc):
+def leerColeccion(archivo, minNc,minNi):
     inicio = default_timer()
     textoTotal =""
     listaArticulos = []
@@ -36,9 +36,6 @@ def leerColeccion(archivo, minNc):
                 Body = Body[:-1]
             Body = eliminarStopWords(Body)
             
-            if a == 2:
-                break
-            a+=1
             if Topics in Clases:
                 valor = Clases[Topics]
                 Clases[Topics] = valor+1
@@ -55,5 +52,5 @@ def leerColeccion(archivo, minNc):
             listaArticulos.append([Topics,ID,Body,HayTopics])
     final = default_timer()
     print( "Tardó ", final-inicio, " segundos en procesar la colección.")
-    generarClasesTxt(Clases, listaArticulos, minNc)
+    generarClasesTxt(Clases, listaArticulos, minNc,minNi)
     
