@@ -20,11 +20,11 @@ def leerColeccion(archivo, minNc):
 
     with open(archivo, 'r') as inF:
         for line in inF:
-            texto = re.sub("[^0-9a-zA-Z<>/\\s=!-\"\"]+","", line)#Pendinete ver cuales son permitidos
+            texto = re.sub("[^0-9a-zA-Z<>/\\s=!-\"\",.]+"," ", line)#Pendinete ver cuales son permitidos
             textoTotal += texto 
 
     soup = BeautifulSoup(textoTotal,"html.parser")
-
+    a= 0
     Clases = dict()
     for articulo in soup.findAll('reuters'):
         ID = articulo["newid"]
@@ -35,6 +35,10 @@ def leerColeccion(archivo, minNc):
             if Body[len(Body)-1] == '3':
                 Body = Body[:-1]
             Body = eliminarStopWords(Body)
+            
+            if a == 2:
+                break
+            a+=1
             if Topics in Clases:
                 valor = Clases[Topics]
                 Clases[Topics] = valor+1

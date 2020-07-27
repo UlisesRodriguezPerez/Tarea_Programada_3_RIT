@@ -27,7 +27,7 @@ stop_words = ["a", "about", "above", "after", "again", "against", "all", "am", "
                 "those", "through", "to", "too", "under", "until", "up", "very", "was", "wasn't", "we", "we'd", "we'll", "we're", 
                 "we've", "were", "weren't", "what", "what's", "when", "when's", "where", "where's", "which", "while", "who", "who's", 
                 "whom", "why", "why's","with", "won't", "would", "wouldn't", "you", "you'd", "you'll", "you're", "you've", "your", 
-                "yours", "yourself"] 
+                "yours", "yourself",""] 
 
 def eliminarStopWords(texto):# Funcion para eliminar stopWords, pendiente hacerla de manera que  lea de un txt.
 
@@ -35,11 +35,16 @@ def eliminarStopWords(texto):# Funcion para eliminar stopWords, pendiente hacerl
     #line = file1.read() #lee el archivo en secuencia.
     textoSinStopWords = ""
     separador = " "
+    texto = texto.lower()
+    texto = re.sub(r"[^a-z0-9,.]"," ",texto)
+    texto = texto.replace(",", "")
+    eliminarComasEntreNumeros(texto)    #TODO Pendiente cambiar función por dejar  punto entre números.
     palabrasDelTexto = texto.split(separador) #separa las palabras del texto.
     for palabra in palabrasDelTexto: 
+        
         if not palabra in stop_words: 
             textoSinStopWords += palabra + " "
-
+        
     return textoSinStopWords
 
 
