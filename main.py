@@ -2,12 +2,12 @@ from extraerAtributos import *
 from funcionesAuxiliares import *
 from Constantes import *
 
-def seleccionar_terminos(archivo, numMejores, minNc, minNt, prefijo):
+def seleccionar_terminos(archivo, numMejores, minNc, minNi, prefijo):
 	inicio = default_timer()
 	# Variables globales
 	Datos =  Body = Topics = Tags = []
 	Datos = [Body, Topics, Tags]
-	leerColeccion(archivo,minNc)
+	leerColeccion(archivo,minNc,minNi)
 
 	final = default_timer()
 	print( "\n En total el programa tardó ", final-inicio)
