@@ -38,7 +38,7 @@ def eliminarStopWords(texto):# Funcion para eliminar stopWords, pendiente hacerl
     texto = texto.lower()
     texto = re.sub(r"[^a-z0-9,.]"," ",texto)
     texto = texto.replace(",", "")
-    eliminarComasEntreNumeros(texto)    #TODO Pendiente cambiar función por dejar  punto entre números.
+    texto = eliminarPuntosDelTexto(texto)    #TODO Pendiente cambiar función por dejar  punto entre números.
     palabrasDelTexto = texto.split(separador) #separa las palabras del texto.
     for palabra in palabrasDelTexto: 
         
@@ -48,10 +48,9 @@ def eliminarStopWords(texto):# Funcion para eliminar stopWords, pendiente hacerl
     return textoSinStopWords
 
 
-def eliminarComasEntreNumeros(texto): 
-    nuevoTexto = re.sub('(?<=\\d),(?=\\d)',"", texto)   #Expresión regular que elimina las comas entre numeros.
+def eliminarPuntosDelTexto(texto): 
+    nuevoTexto = re.sub("(?<!\\d)\\.(?=\\d)|(?<=\\d)\\.(?!\\d)|(?<!\\d)\\.(?!\\d)","", texto)   #Expresión regular que elimina las comas entre numeros.
     return nuevoTexto
-
 
 
 def generarClasesTxt(Clases, listaArticulos, minNc): #Esta funcion genera el txt de clases y llama a la funcion para generar el txt de Docs. Deben de ser complementarias.

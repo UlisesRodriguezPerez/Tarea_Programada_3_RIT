@@ -1,5 +1,5 @@
 NOMBRE_ARCHIVO = "reut2-001.sgm"
-numMejores = 0
-minNc = 50
-minNi = 50
-prefijo = 0
+NUM_MEJORES = 0
+MIN_NC = 50
+MIN_NI = 50
+PREFIJO = 0

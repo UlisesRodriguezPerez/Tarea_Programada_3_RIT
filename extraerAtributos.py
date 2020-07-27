@@ -36,8 +36,6 @@ def leerColeccion(archivo, minNc):
                 Body = Body[:-1]
             Body = eliminarStopWords(Body)
             
-            if a == 2:
-                break
             a+=1
             if Topics in Clases:
                 valor = Clases[Topics]

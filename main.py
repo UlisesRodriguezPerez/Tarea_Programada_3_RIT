@@ -1,5 +1,6 @@
 from extraerAtributos import *
 from funcionesAuxiliares import *
+from Constantes import *
 
 def seleccionar_terminos(archivo, numMejores, minNc, minNt, prefijo):
 	inicio = default_timer()
@@ -11,5 +12,5 @@ def seleccionar_terminos(archivo, numMejores, minNc, minNt, prefijo):
 	final = default_timer()
 	print( "\n En total el programa tardó ", final-inicio)
 	# print (Datos)
-	
-seleccionar_terminos("reut2-001.sgm",0,1,0,0)
+
+seleccionar_terminos(NOMBRE_ARCHIVO,NUM_MEJORES,MIN_NC,MIN_NI,PREFIJO)
