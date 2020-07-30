@@ -52,5 +52,6 @@ def leerColeccion(archivo, minNc,minNi):
             listaArticulos.append([Topics,ID,Body,HayTopics])
     final = default_timer()
     print( "Tardó ", final-inicio, " segundos en procesar la colección.")
+    #print(Clases)
     generarClasesTxt(Clases, listaArticulos, minNc,minNi)
     

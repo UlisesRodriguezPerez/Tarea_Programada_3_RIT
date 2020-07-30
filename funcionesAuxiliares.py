@@ -57,6 +57,9 @@ def generarClasesTxt(Clases, listaArticulos, minNc,minNi): #Esta funcion genera 
     inicio = default_timer()
     topicsAceptados = dict()             #El diccionario de topics aceptados es para saber cuales si son aceptados por minNc
     Clases = sorted(Clases.items(), key=operator.itemgetter(1), reverse = True)
+    nuevoDiccionarioDeClases = dict() #ESte diccionario será usado para calcular la diferencia de cada termino, restando el total de apariciones de esa 
+                                    #clase - la cantidad de clases en las que apareció la palabra.
+
     with open("clases.txt","w",encoding="UTF-8") as archivoClases:
         for item in Clases:
             if item[1] < minNc:
@@ -64,9 +67,11 @@ def generarClasesTxt(Clases, listaArticulos, minNc,minNi): #Esta funcion genera 
             else:
                 archivoClases.write(str(item[0]) + "\t" + str(item[1]) + "\n")
                 topicsAceptados[item[0]] = 1
+                nuevoDiccionarioDeClases[item[0]] = item[1]     #Diccionario con las clases que se piden por parámetro.
+    #print(nuevoDiccionarioDeClases  )
     final = default_timer()
     print( "Tardó ", final-inicio, " segundos en generar 'clases.txt'.")
-    generarDocsTxt(topicsAceptados,listaArticulos,minNc,minNi)  
+    generarDocsTxt(topicsAceptados,listaArticulos,minNc,minNi,nuevoDiccionarioDeClases)  
 
     #SUGERENCIA
     #inicio = default_timer()
@@ -83,7 +88,7 @@ def generarClasesTxt(Clases, listaArticulos, minNc,minNi): #Esta funcion genera 
 
 
 
-def generarDocsTxt(topicsAceptados,listaDeArticulos,minNc,minNi):
+def generarDocsTxt(topicsAceptados,listaDeArticulos,minNc,minNi,nuevoDiccionarioDeClases):
     inicio = default_timer()
     listaDeArticulosPermitidos = []
     with open("docs.txt","w",encoding="UTF-8") as archivoDocs:
@@ -93,14 +98,16 @@ def generarDocsTxt(topicsAceptados,listaDeArticulos,minNc,minNi):
                 listaDeArticulosPermitidos.append(articulo)
     final = default_timer()
     print( "Tardó ", final-inicio, " segundos en generar 'docs.txt'.")
-    generarDiccTxt(listaDeArticulosPermitidos,minNi)
+    generarDiccTxt(listaDeArticulosPermitidos,minNi,nuevoDiccionarioDeClases)
 
 
 
-def generarDiccTxt(listaDeArticulosPermitidos,minNi):
+def generarDiccTxt(listaDeArticulosPermitidos,minNi,nuevoDiccionarioDeClases):
     inicio = default_timer()
     #listaDeDiccionarios = generarListaDeDiccionarios(listaDeArticulosPermitidos)  #Se llama la función "generarListaDeDiccionarios" para nada más proceder a la comparación.
-    diccionarioGeneral = generarDiccionarioGeneral(listaDeArticulosPermitidos)  #Genera un diccionario, con todas las palabras de la colección.
+    diccionarioGeneralAndDatosParaGI = generarDiccionarioGeneralAndDatosParaGI(listaDeArticulosPermitidos,nuevoDiccionarioDeClases)  
+    diccionarioGeneral = diccionarioGeneralAndDatosParaGI[0]   #Genera un diccionario,con todas las palabras de la colección.
+    infoGI = diccionarioGeneralAndDatosParaGI[1]
     listaDePalabras = []
 
     for palabra in diccionarioGeneral: #Recorre todas las palabras de la colección(sección body).
@@ -121,15 +128,34 @@ def generarDiccTxt(listaDeArticulosPermitidos,minNi):
             palabraFiltrada = re.sub("[^a-z\\d+.\\/]","",palabra[0])
             if palabraFiltrada not in stop_words:
                 archivoDiccs.write(str(palabraFiltrada) + "\t" + str(palabra[1]) + "\n") 
-    
+
+
+        #TXT DE PRUEBA; PARA VISUALIZAR LAS PALABRAS Y SUS CALCULOS RESPECTIVOS:**************************************************************************
+        #*******************************************************************************************************************************+
+    with open("infoGanaciaInformacion.txt","w",encoding="UTF-8") as archivoInfoGI: 
+        
+        for contPalabras in range(len(infoGI)): #Recorre las palabras.
+            archivoInfoGI.write("Palabra: " + infoGI[contPalabras][0] + "\n")    #PALABRA.
+            #print(infoGI[contPalabras][0])
+            for contClasesPorPalabra in infoGI[contPalabras][1]:   #Recorre las clases de cada palabra.
+                archivoInfoGI.write("\t\tClase:")
+               
+                archivoInfoGI.write(str(contClasesPorPalabra) + "\n\t\t\t" + str("Info de la clase:") + "\n" + "\t\t\t\t\t" + str(infoGI[contPalabras][1][contClasesPorPalabra][0])
+                + "\t\t" + str(infoGI[contPalabras][1][contClasesPorPalabra][1]) + "\t\t" + str(infoGI[contPalabras][1][contClasesPorPalabra][2])
+                + "\n")          #escribe -> (clase , itermi-i , -itermi-i , totalDeClase)
+                    
+            #archivoInfoGI.write(str(infoGI[0][1][info]) + "\n")
+    #print(infoGanaciaInformacion)
     final = default_timer()
     print( "Tardó ", final-inicio, " segundos en generar 'dicc.txt'.")
 
         
     
 
-def generarDiccionarioGeneral(listaDeArticulosPermitidos):  #Genera un diccionario para toda la colección.
+def generarDiccionarioGeneralAndDatosParaGI(listaDeArticulosPermitidos,nuevoDiccionarioDeClases):  #Genera un diccionario para toda la colección.
     diccionarioGeneral = dict()
+    listaConTodaLaInformacion = []       #Esta lista contiene toda la informacion para el calculo de ganancia de información, cada indice es una palabra..
+
     for articulo in listaDeArticulosPermitidos:
         articulo = articulo[2].lower()         #Pasa a minúsculas.
         articulo = articulo.split()
@@ -140,5 +166,57 @@ def generarDiccionarioGeneral(listaDeArticulosPermitidos):  #Genera un diccionar
                 diccionarioGeneral[palabra] = valor + 1 
             else:
                 diccionarioGeneral[palabra] = 1
-    return diccionarioGeneral
+                listaConTodaLaInformacion.append(prepararInformacionParaGI(palabra,listaDeArticulosPermitidos,nuevoDiccionarioDeClases))
+
+    datos = [diccionarioGeneral,listaConTodaLaInformacion]  #LA FUNCIÓN "generarDiccionariosGeneralAndDatosGI", RETORNA EL DICCIONARIO GENERAL PARA EL CÁLCULO
+                                                            #DEL "dicc.txt" Y UNA LISTA CON TODAS LAS PALABRAS Y SUS DATOS PARA PROCEDER CON
+                                                            #EL CÁLCULO DE GANACIA DE INFORMACIÓN. (SIMPLEMENTE SERÍA RECORRER LA LISTA DE PALABRAS
+                                                            # Y SU RESPECTIVO DICCIONARIO DE CLASES Y VALORES).
+    return  datos
+    
+
+def prepararInformacionParaGI(palabra, listaDeArticulosPermitidos, nuevoDiccionarioDeClases):
+
+    
+    diccionarioPorPalabra = dict()  
+    existePalabraEnArticulo = False
+
+    for counterClases in range(len(listaDeArticulosPermitidos)):
+
+        if palabra in listaDeArticulosPermitidos[counterClases][2]: #El indice 2 es el body del artículo.
+            existePalabraEnArticulo = True
+            clase = listaDeArticulosPermitidos[counterClases][0]
+
+            if clase in diccionarioPorPalabra:    #EL DICCIONARIO POR PALABRA LLEVA EL SIGUIENTE ORDEN 
+                                                #-> {clase: [termi-i , -termi-i, total], ... clase: [termi-i , -termi-i, total]}
+                total = nuevoDiccionarioDeClases[clase] 
+                valor = diccionarioPorPalabra[clase]
+                valor = valor[0] + 1
+                diccionarioPorPalabra[clase] = [valor ,total-valor,total] 
+            else:
+                total = nuevoDiccionarioDeClases[clase]
+                diccionarioPorPalabra[clase] = [1, total - 1, total]
+    return [palabra,diccionarioPorPalabra]
+                
+            
+        
+    
+    listaConTodaLaInformacion.append([palabra,diccionarioPorPalabra])
+    # print(listaConTodaLaInformacion[0])
+    # print(total)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
