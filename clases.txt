@@ -1,2 +1,7 @@
 earn	219
 acq	82
+trade	20
+coffee	13
+grainwheat	12
+crude	12
+moneyfxinterest	11

@@ -1,2 +1,8 @@
-shr	127
-loss	80
+cts	213
+vs	176
+19	160
+net	157
+shr	128
+loss	85
+profit	64
+six	37

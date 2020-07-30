@@ -20,7 +20,7 @@ def leerColeccion(archivo, minNc,minNi):
 
     with open(archivo, 'r') as inF:
         for line in inF:
-            texto = re.sub("[^0-9a-zA-Z<>/\\s=!-\"\",.]+"," ", line)#Pendinete ver cuales son permitidos
+            texto = re.sub("[^0-9a-zA-Z<>/\\s=!-\"\",.]+","", line)#Pendinete ver cuales son permitidos
             textoTotal += texto 
 
     soup = BeautifulSoup(textoTotal,"html.parser")
