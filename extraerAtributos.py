@@ -13,45 +13,43 @@ from timeit import default_timer
 import codecs
 from funcionesAuxiliares import *
 
-def leerColeccion(archivo, minNc,minNi):
+def leerColeccion(archivo):
+    Body = Topics = Tags = []
+    Datos = [Body, Topics, Tags]
     inicio = default_timer()
     textoTotal =""
-    listaArticulos = []
+    Articulos = []
+    stopwords = cargarStopWords("stopWords.txt")
 
-    with open(archivo, 'r') as inF:
-        for line in inF:
-            texto = re.sub("[^0-9a-zA-Z<>/\\s=!-\"\",.]+","", line)#Pendinete ver cuales son permitidos
+    with open(archivo, 'r') as contenido:
+        for line in contenido:
+            texto = re.sub("[^0-9a-zA-Z<>/\\s=!-\"\",.]+","", line) #Pendiente ver cuales son permitidos
             textoTotal += texto 
 
     soup = BeautifulSoup(textoTotal,"html.parser")
-    a= 0
+
     Clases = dict()
-    for articulo in soup.findAll('reuters'):
+    for articulo in soup.findAll('reuters'):    # Se extraen los datos de cada articulo
         ID = articulo["newid"]
         if articulo["topics"] == "YES" and articulo.topics.text != '' and articulo.body != None:
-            Topics = articulo.topics.text
-            #print(Topics)                                            #PENDIENTE OBTENER SOLO UHN TOPICS SIEMPRE.
             Body = articulo.body.text
-            if Body[len(Body)-1] == '3':
-                Body = Body[:-1]
-            Body = eliminarStopWords(Body)
-            
-            if Topics in Clases:
-                valor = Clases[Topics]
-                Clases[Topics] = valor+1
+            Body = filtrarTexto(Body, stopwords)
+            Body = Body.split()
+
+            Topic = articulo.topics.d.string
+
+            if Topic in Clases:
+                valor = Clases[Topic]
+                Clases[Topic] = valor+1
             else:
-                Clases[Topics] = 1
+                Clases[Topic] = 1
                 
             HayTopics = articulo["topics"]
 
-            # print(Topics)
-            # print(ID)
-            # print (Body)
-            # print(HayTopics)
-
-            listaArticulos.append([Topics,ID,Body,HayTopics])
+            Articulos.append([Topic,ID,Body,HayTopics])
     final = default_timer()
     print( "Tardó ", final-inicio, " segundos en procesar la colección.")
-    #print(Clases)
-    generarClasesTxt(Clases, listaArticulos, minNc,minNi)
+
+    return Articulos, Clases
+    
     
