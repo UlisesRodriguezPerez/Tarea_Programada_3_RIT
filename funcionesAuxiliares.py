@@ -31,11 +31,13 @@ def eliminarStopWords(texto, stopwords):# Funcion para eliminar stopWords
 	return textoSinStopWords
 
 def dejarPuntosSoloEnNumeros(texto): 
-	texto = re.sub(r"[^a-z0-9,.\"\'']"," ",texto)
-	texto = texto.replace(",", "")
-	texto = texto.replace("\'","")
-	texto = texto.replace("\"","")
-	nuevoTexto = re.sub("(?<!\\d)\\.(?=\\d)|(?<=\\d)\\.(?!\\d)|(?<!\\d)\\.(?!\\d)","", texto)   #Expresión regular que elimina las comas entre numeros.
+	# texto = re.sub(r"[^a-z0-9,.\"\'']"," ",texto)
+	# 		#PENDINETE -> Averiguar si es más rápido usar una expresión regular para todas a la vez.
+	# texto = texto.replace(",", "")		
+	# texto = texto.replace("\'","")
+	# texto = texto.replace("\"","")
+	
+	nuevoTexto = re.sub("(?<!\\d)\\.(?=\\d)|(?<=\\d)\\.(?!\\d)|(?<!\\d)\\.(?!\\d)","", texto)   #Expresión regular que elimina los puntos menos entre números.
 	return nuevoTexto
 
 def filtrarTexto(texto, stopwords):
@@ -58,7 +60,7 @@ def generarClasesTxt(Clases, minNc): #Esta funcion genera el txt de clases y lla
 	totalDeClases = 0
 	with open("clases.txt","w",encoding="UTF-8") as archivoClases:
 		for clase in ClasesOrdenadas:
-			if clase[1] <= minNc:
+			if clase[1] < minNc:
 				break
 			else:
 				totalDeClases += clase[1]
@@ -116,18 +118,19 @@ def generarDiccTxt(l_Documentos,d_Clases,minNi):
 		#*******************************************************************************************************************************+
 
 def generarConjuntoPalabrasAndDatosParaGI(l_Documentos,d_Clases):  #Genera un diccionario para toda la colección.
+
 	conjuntoPalabras = set()
 	tablasCalculoGI = dict()       #Esta lista contiene toda la informacion para el calculo de ganancia de información, cada indice es una palabra.
-
+	
 	for documento in l_Documentos:
 		texto = documento[2]	#Se hace una lista de los terminos en el texto del articulo
 		# print("ID",documento[1])
 		# print("TEXTO:",texto)
-		for termino in texto:
-			if termino not in conjuntoPalabras:
-				conjuntoPalabras.add(termino)
-				palabra, clases = generarTablaGI(termino,l_Documentos,d_Clases)
-				tablasCalculoGI[palabra] = clases
+		for termino in texto:		
+			if termino not in conjuntoPalabras:		
+				conjuntoPalabras.add(termino)	#PENDIENTE -> Revisar porque hay stopswors en la lista.
+				clases = generarTablaGI(termino,l_Documentos,d_Clases)
+				tablasCalculoGI[termino] = clases
 
 	#LA FUNCIÓN "generarDiccionariosGeneralAndDatosGI", RETORNA EL DICCIONARIO GENERAL PARA EL CÁLCULO
 	#DEL "dicc.txt" Y UNA LISTA CON TODAS LAS PALABRAS Y SUS DATOS PARA PROCEDER CON
@@ -139,12 +142,11 @@ def generarTablaGI(palabra, l_Documentos, d_Clases):
 
 	#EL DICCIONARIO DE CLASES POR PALABRA LLEVA EL SIGUIENTE ORDEN 
 	#-> {clase: [termi-i , -termi-i, total], ... clase: [termi-i , -termi-i, total]}   
-	d_ClasesPorPalabra = dict()  
-
+	d_ClasesPorPalabra = dict()  	#PENDIENTE -> Cambiar el dict por una lista normal, para más rápidez.
 	for documento in l_Documentos:
-		clase = documento[0] #El indice 0 es la clase (topic) del articulo
-		texto = documento[2] #El indice 2 es el body del artículo, la lista de palabras del body.
-		if palabra in texto: 
+		#texto = documento[2] #El indice 2 es el body del artículo, la lista de palabras del body.
+		if palabra in documento[2]: 	#Documento[2] es el campo de texto del body de cada artículo.
+			clase = documento[0] #El indice 0 es la clase (topic) del articulo
 			if clase in d_ClasesPorPalabra:
 				d_ClasesPorPalabra[clase][0] += 1
 				d_ClasesPorPalabra[clase][1] -= 1
@@ -154,7 +156,8 @@ def generarTablaGI(palabra, l_Documentos, d_Clases):
 	# print(palabra.upper())
 	# for llave, valor in d_ClasesPorPalabra.items():
 	# 	print(llave,valor)
-	return palabra, d_ClasesPorPalabra
+	#return palabra, d_ClasesPorPalabra
+	return d_ClasesPorPalabra
 
 def generarGananciaDeInformacion(d_TablasGI, d_Palabras, N):
 	inicio = default_timer()

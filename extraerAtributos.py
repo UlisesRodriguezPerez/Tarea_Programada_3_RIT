@@ -14,16 +14,16 @@ import codecs
 from funcionesAuxiliares import *
 
 def leerColeccion(archivo):
+    inicio = default_timer()
     Body = Topics = Tags = []
     Datos = [Body, Topics, Tags]
-    inicio = default_timer()
     textoTotal =""
     Articulos = []
     stopwords = cargarStopWords("stopWords.txt")
 
     with open(archivo, 'r') as contenido:
         for line in contenido:
-            texto = re.sub("[^0-9a-zA-Z<>/\\s=!-\"\",.]+","", line) #Pendiente ver cuales son permitidos
+            texto = re.sub("[^0-9a-zA-Z<>/\\s=!.]+","", line) #Pendiente ver cuales son permitidos
             textoTotal += texto 
 
     soup = BeautifulSoup(textoTotal,"html.parser")
@@ -32,6 +32,7 @@ def leerColeccion(archivo):
     for articulo in soup.findAll('reuters'):    # Se extraen los datos de cada articulo
         ID = articulo["newid"]
         if articulo["topics"] == "YES" and articulo.topics.text != '' and articulo.body != None:
+            
             Body = articulo.body.text
             Body = filtrarTexto(Body, stopwords)
             Body = Body.split()

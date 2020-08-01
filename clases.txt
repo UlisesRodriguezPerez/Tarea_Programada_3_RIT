@@ -26,3 +26,13 @@ ironsteel	2
 rubber	2
 gas	2
 natgas	2
+lei	1
+housing	1
+zinc	1
+mealfeed	1
+wheat	1
+carcass	1
+petchem	1
+tin	1
+silver	1
+wpi	1

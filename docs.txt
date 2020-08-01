@@ -11,12 +11,14 @@
 1019	earn
 1020	acq
 1022	trade
+1023	lei
 1024	earn
 1026	coffee
 1029	acq
 1030	coffee
 1032	acq
 1033	earn
+1036	housing
 1039	acq
 1040	jobs
 1044	earn
@@ -35,6 +37,7 @@
 1072	gold
 1074	acq
 1076	acq
+1077	zinc
 1078	interest
 1079	ipi
 1080	earn
@@ -108,6 +111,7 @@
 1211	vegoil
 1212	coffee
 1213	acq
+1215	mealfeed
 1216	sugar
 1217	acq
 1220	acq
@@ -196,6 +200,7 @@
 1381	earn
 1382	earn
 1384	earn
+1385	wheat
 1387	crude
 1388	grain
 1391	earn
@@ -208,6 +213,7 @@
 1404	earn
 1405	grain
 1406	grain
+1407	carcass
 1409	acq
 1412	acq
 1414	earn
@@ -240,6 +246,7 @@
 1483	earn
 1488	earn
 1492	earn
+1493	petchem
 1494	earn
 1496	earn
 1497	acq
@@ -455,11 +462,13 @@
 1920	acq
 1924	earn
 1926	moneyfx
+1929	tin
 1931	moneyfx
 1932	trade
 1933	moneysupply
 1934	ironsteel
 1940	reserves
+1942	silver
 1943	moneyfx
 1946	sugar
 1948	crude
@@ -470,6 +479,7 @@
 1960	coffee
 1963	trade
 1964	trade
+1965	wpi
 1966	oilseed
 1967	moneyfx
 1970	grain

@@ -21,4 +21,4 @@ def seleccionar_terminos(archivo, numMejores, minNc, minNi, prefijo):
 	# print (Datos)
 
 #seleccionar_terminos(NOMBRE_ARCHIVO,NUM_MEJORES,MIN_NC,MIN_NI,PREFIJO)
-seleccionar_terminos("reut2-001.sgm",0,1,1,"")
+seleccionar_terminos("reut2-001.sgm",0,0,0,"")
