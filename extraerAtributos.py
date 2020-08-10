@@ -1,16 +1,8 @@
 # import arff
-from xml.etree import ElementTree
 import re
-from io import StringIO
 from bs4 import BeautifulSoup 
 import bs4                      #pip3 install bs4
 from unicodedata import normalize
-import requests                 #pip install requests
-import urllib.request
-import string
-import operator
-from timeit import default_timer
-import codecs
 from funcionesAuxiliares import *
 
 def leerColeccion(archivo):
@@ -23,7 +15,7 @@ def leerColeccion(archivo):
 
     with open(archivo, 'r') as contenido:
         for line in contenido:
-            texto = re.sub("[^0-9a-zA-Z<>/\\s=!.]+","", line) #Pendiente ver cuales son permitidos
+            texto = re.sub("[^0-9a-zA-Z<>/\\s=!.']+","", line) #Pendiente ver cuales son permitidos
             textoTotal += texto 
 
     soup = BeautifulSoup(textoTotal,"html.parser")
