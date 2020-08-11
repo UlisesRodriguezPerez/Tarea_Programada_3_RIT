@@ -21,4 +21,4 @@ def seleccionar_terminos(archivo, numMejores, minNc, minNi, prefijo):
 	# print (Datos)
 
 #seleccionar_terminos(NOMBRE_ARCHIVO,NUM_MEJORES,MIN_NC,MIN_NI,PREFIJO)
-seleccionar_terminos("TP3-Prueba.sgm",0,0,0,"pr2_")
+seleccionar_terminos("TP3-Prueba_v2.sgm",8,1,1,"TP3_")

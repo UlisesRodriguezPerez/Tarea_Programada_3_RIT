@@ -58,13 +58,11 @@ def generarClasesTxt(Clases, minNc, prefijo): #Esta funcion genera el txt de cla
 	totalDeClases = 0
 	with open(prefijo+"clases.txt","w",encoding="UTF-8") as archivoClases:
 		for clase in ClasesOrdenadas:
+			totalDeClases += clase[1]
+			archivoClases.write(str(clase[0]) + "\t" + str(clase[1]) + "\n")
+			ClasesMinNC[clase[0]] = clase[1]    #Diccionario con las clases que se piden por parámetro.
 			if clase[1] < minNc:
 				break
-			else:
-				totalDeClases += clase[1]
-				archivoClases.write(str(clase[0]) + "\t" + str(clase[1]) + "\n")
-				#topicsAceptados.append(clase[0])
-				ClasesMinNC[clase[0]] = clase[1]    #Diccionario con las clases que se piden por parámetro.
 
 	final = default_timer()
 	print( "Tardó ", final-inicio, " segundos en generar 'clases.txt'.")
@@ -93,6 +91,7 @@ def generarDiccTxt(l_Documentos,d_Clases,minNi,prefijo):
 	for palabra in s_General: #Recorre todas las palabras de la colección(sección body).
 		contArticulos = 0
 		Ni = 0
+		palabra = str(palabra)
 		for documento in l_Documentos:   #recorre la lista de articulos
 			if palabra in documento[2]: # Solo identifica si la palabra esta en el documento, no cuantas veces aparece en cada documento.
 				Ni += 1				   # Aumenta el ni (numero de documentos) en el que aparece la palabra
@@ -118,15 +117,13 @@ def generarDiccTxt(l_Documentos,d_Clases,minNi,prefijo):
 def generarConjuntoPalabrasAndDatosParaGI(l_Documentos,d_Clases):  #Genera un diccionario para toda la colección.
 
 	conjuntoPalabras = set()
-	tablasCalculoGI = dict()       #Esta lista contiene toda la informacion para el calculo de ganancia de información, cada indice es una palabra.
+	tablasCalculoGI = dict()    #Esta lista contiene toda la informacion para el calculo de ganancia de información, cada indice es una palabra.
 	
 	for documento in l_Documentos:
 		texto = documento[2]	#Se hace una lista de los terminos en el texto del articulo
-		# print("ID",documento[1])
-		# print("TEXTO:",texto)
 		for termino in texto:		
 			if termino not in conjuntoPalabras:		
-				conjuntoPalabras.add(termino)	#PENDIENTE -> Revisar porque hay stopswors en la lista.
+				conjuntoPalabras.add(termino)
 				clases = generarTablaGI(termino,l_Documentos,d_Clases)
 				tablasCalculoGI[termino] = clases
 
@@ -141,110 +138,88 @@ def generarTablaGI(palabra, l_Documentos, d_Clases):
 	#EL DICCIONARIO DE CLASES POR PALABRA LLEVA EL SIGUIENTE ORDEN 
 	#-> {clase: [termi-i , -termi-i, total], ... clase: [termi-i , -termi-i, total]}   
 	d_ClasesPorPalabra = dict()  	#PENDIENTE -> Cambiar el dict por una lista normal, para más rápidez.
+	# Se inicializa el diccionario de clases para el termino
+	for clase in d_Clases:
+		d_ClasesPorPalabra[clase] = [0,d_Clases[clase],d_Clases[clase]]
+
 	for documento in l_Documentos:
-		#texto = documento[2] #El indice 2 es el body del artículo, la lista de palabras del body.
 		clase = documento[0] #El indice 0 es la clase (topic) del articulo
-		if palabra in documento[2]: 	#Documento[2] es el campo de texto del body de cada artículo.
+		if palabra in documento[2]: 	#Documento[2] es la lista de palabras del body
 			if clase in d_ClasesPorPalabra:
 				d_ClasesPorPalabra[clase][0] += 1
 				d_ClasesPorPalabra[clase][1] -= 1
-			else:
-				total = d_Clases[clase]
-				d_ClasesPorPalabra[clase] = [1, total - 1, total]
-		else:
-			total = d_Clases[clase]
-			d_ClasesPorPalabra[clase] = [0, total, total]
 
-
-	# print(palabra.upper())
-	# for llave, valor in d_ClasesPorPalabra.items():
-	# 	print(llave,valor)
-	#return palabra, d_ClasesPorPalabra
 	return d_ClasesPorPalabra
 
-def generarGananciaDeInformacion(d_TablasGI, d_Palabras, d_Clases, N,prefijo):
+def generarGananciaDeInformacion(d_TablasGI, d_Palabras, d_Clases, N, prefijo):
 	inicio = default_timer()
 	sumatoria_Ec = 0
 	primeraSumatoria = segundaSumatoria = 0
 	d_Ec = dict()
-	d_EC_Termi = dict()
+	d_GI = dict()
+	d_GI_TXT = dict()
+	giTXT = ""
 
-	with open(prefijo+"infoGanaciaInformacion.txt","w",encoding="UTF-8") as archivoInfoGI: 
+	#SE CALCULA LA FORMULA E(C)
+	for clase in d_Clases:
+		nc_k = d_Clases[clase]
+		if nc_k == 0:
+			Ec = 0
+		else:
+			probabilidad = nc_k / N # nck/N
+			Ec = -probabilidad * (math.log2(probabilidad))  #Aquí se calcula el E(C) de cada clase
+		sumatoria_Ec += Ec   #Al mismo tiempo se va realizando la sumatoria.
+		giTXT += ("\nE("+clase+"= " + str(Ec))
+	giTXT += ("\nE(Clases)= "+str(sumatoria_Ec)+"\n")
 
-		#SE CALCULA LA FORMULA E(C)
-		for clase in d_Clases:
-			nc_k = d_Clases[clase]
-			if nc_k == 0:
-				Ec = 0
-			else:
-				probabilidad = nc_k / N # nck/N
-				Ec = -probabilidad * (math.log2(probabilidad))  #Aquí se calcula el E(C) de cada clase
-			d_Ec[clase] = Ec
-			sumatoria_Ec += Ec   #Al mismo tiempo se va realizando la sumatoria.
-			archivoInfoGI.write("\nE("+clase+"= " + str(Ec))
-		archivoInfoGI.write("\nE(Clases)= "+str(sumatoria_Ec)+"\n")
+	for palabra, clases in d_TablasGI.items(): #Recorre las tablas de valores para GI de las palabras.
+		giTXT = ""
+		giTXT += ("\nPalabra: " + palabra)
+		# Se resetean para cada palabra
+		primeraSumatoria = segundaSumatoria = Ec_term_i = GI_term_i = sum_Ec_term_i = sum_GI_term_i = 0;
+		for clase, datos in clases.items():   #Recorre las clases de cada palabra.
+			n_ik = datos[0]
+			_n_ik = datos[1]
+			nc_k = datos[2]
 
-		for palabra, clases in d_TablasGI.items(): #Recorre las tablas de valores para GI de las palabras.
-			archivoInfoGI.write("Palabra: " + palabra + "\n")    #PALABRA.
-			# Se resetean para cada palabra
-			sumatoria_Ec = primeraSumatoria = segundaSumatoria = Ec_term_i = GI_term_i = sum_Ec_term_i = sum_GI_term_i = 0;
-			for clase, datos in clases.items():   #Recorre las clases de cada palabra.
-				n_ik = datos[0]
-				_n_ik = datos[1]
-				nc_k = datos[2]
+			# giTXT += ("\t\tClase:" + str(clase) + "\n\t\t\t")
+			# giTXT += (str("Info de la clase:") + "\n" + "\t\t\t\t\t" + 
+			# 					str(n_ik) + "\t\t" + 
+			# 					str(_n_ik) + "\t\t" + 
+			# 					str(nc_k)+ "\n")
 
-				archivoInfoGI.write("\t\tClase:" + str(clase) + "\n\t\t\t")
-				#escribe -> (clase , itermi-i , -itermi-i , totalDeClase)
-				archivoInfoGI.write(str("Info de la clase:") + "\n" + "\t\t\t\t\t" + 
-									str(n_ik) + "\t\t" + 
-									str(_n_ik) + "\t\t" + 
-									str(nc_k)+ "\n")
+			#SE CALCULA UNA PARTE DE LA FORMULA E(C,iterm_i)
+			if n_ik == 0:
+				n_ik = 1
 
-				#SE CALCULA UNA PARTE DE LA FORMULA E(C,iterm_i)
-				# termi_no_i = infoGI[contPalabras][1][contClasesPorPalabra][1]   #La cantidad de clases en las que no estuvo
-				# termi_i = infoGI[contPalabras][1][contClasesPorPalabra][0]
-				#La primera y segunda sumatoria de E(C,〖term〗_i ) se calculará aquí para ahorrar iteraciones. 
-				if n_ik == 0:
-					n_ik = 1
-					# print("para que no se indefiniera el logaritmo se le sumó '0.000001' a termi_i (" + str(f"{infoGI[contPalabras][0]}") 
-					# + ") La palabra es ->  " + f"{palabraActual}" )
+			if _n_ik == 0:
+				_n_ik = 1
 
-				if _n_ik == 0:
-					_n_ik = 1
-					# print("para que no se indefiniera el logaritmo se le sumó '0.000001' a termi_no_i (" + str(f"{infoGI[contPalabras][1]}") 
-					# + ") La palabra es ->  " + f"{palabraActual}" )
+			primeraSumatoria += n_ik * math.log2(n_ik)
+			segundaSumatoria += _n_ik * math.log2(_n_ik)
+			
+		#SE TERMINA DE CALCULAR LA FÓRMULA E(C,iterm_i).
+		ni = d_Palabras[palabra]
+		if (ni == N): #Caso en el que una palabra aparece en todos los documentos
+			ni = N-0.000000000000001
+		EC_term_i = (ni * math.log2(ni) + (N - ni) * math.log2(N - ni) - primeraSumatoria - segundaSumatoria)/N
+		giTXT += ("\tE(Clases),"+palabra+")= "+str(EC_term_i))
+		GI_term_i = sumatoria_Ec - EC_term_i
+		d_GI[palabra] = GI_term_i
+		d_Ec[palabra] = EC_term_i
+		giTXT += ("\tGI("+palabra+")= "+str(GI_term_i)+"\n")
+		
+		d_GI_TXT[palabra] = giTXT
 
+	d_GI_TXT = sorted(d_GI_TXT.items(), key=operator.itemgetter(0))
+	with open(prefijo+"gi.txt","w",encoding="UTF-8") as archivoInfoGI: 
+		for texto in d_GI_TXT:
+			archivoInfoGI.write(texto[1])
 
-				print(clase,str(-n_ik)," log2 ",str(n_ik)," = ",str(-n_ik * math.log2(n_ik)), "    ", clase,str(-_n_ik)," log2 ",str(_n_ik), " = ",str(-n_ik * math.log2(_n_ik)))
-				primeraSumatoria += -n_ik * math.log2(n_ik)
-				segundaSumatoria += -_n_ik * math.log2(_n_ik)
-				
-				#SE TERMINA DE CALCULAR LA FÓRMULA E(C,iterm_i).
-
-				# GI_term_i =  d_Ec[clase] - EC_term_i
-				# sum_GI_term_i += GI_term_i
-				# archivoInfoGI.write("\n\t\t\tGI("+clase+","+palabra+")= "+str(GI_term_i)+"\n")
-
-			ni = d_Palabras[palabra]
-			print("NI de ",palabra,ni)
-			if (ni == N): #Caso en el que una palabra aparece en todos los documentos
-				ni = N-0.000000000000001
-			EC_term_i = (ni * math.log2(ni) + (N - ni) * math.log2(N - ni) - primeraSumatoria - segundaSumatoria)/N
-			d_EC_Termi[palabra] = EC_term_i
-			#archivoInfoGI.write("\n\t\t\tE("+clase+","+palabra+")= "+str(EC_term_i))
-			print("E(Clases) = ",d_Ec[clase])
-			print("E(Clases,"+palabra+")",EC_term_i)
-			GI_term_i =  sumatoria_Ec - EC_term_i
-			print("GI("+palabra+")")
-			archivoInfoGI.write("\n\tE(Clases),"+palabra+")= "+str(EC_term_i))
-			archivoInfoGI.write("\n\tGI("+palabra+")= "+str(GI_term_i)+"\n")
-					
-
-	d_EC_Termi = sorted(d_EC_Termi.items(), key=operator.itemgetter(1), reverse = True)
-	with open(prefijo+"GICalculada.txt","w",encoding="UTF-8") as archivoGI: 
-		for termino in d_EC_Termi:
-			archivoGI.write(termino[0] + "\t\t" + str(termino[1]) + "\n")
-	# print(listaDeCalculos_Ec_PorClase[0])
-	# print(sumatoria_Ec)
+	d_GI = sorted(d_GI.items(), key=operator.itemgetter(1), reverse = True)
+	with open(prefijo+"mejores.txt","w",encoding="UTF-8") as archivoGI: 
+		archivoGI.write("termino \tEntropia\tGanancia de informacion\n")
+		for termino in d_GI:
+			archivoGI.write(termino[0] + "\t\t" + str(d_Ec[termino[0]]) + "\t" +str(termino[1]) +"\n")
 	final = default_timer()
 	print( "Tardó ", final-inicio, " segundos en generar 'infoGanaciaInformacion.txt'.")

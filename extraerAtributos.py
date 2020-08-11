@@ -15,7 +15,7 @@ def leerColeccion(archivo):
 
     with open(archivo, 'r') as contenido:
         for line in contenido:
-            texto = re.sub("[^0-9a-zA-Z<>/\\s=!.']+","", line) #Pendiente ver cuales son permitidos
+            texto = re.sub("[^0-9a-zA-Z<>/\\s=.']+","", line) #Pendiente ver cuales son permitidos
             textoTotal += texto 
 
     soup = BeautifulSoup(textoTotal,"html.parser")
