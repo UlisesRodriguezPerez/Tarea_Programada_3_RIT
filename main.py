@@ -13,7 +13,7 @@ def seleccionar_terminos(archivo, numMejores, minNc, minNi, prefijo):
 	D_ClasesMinNC, N = generarClasesTxt(D_Clases, minNc,prefijo)
 	L_DocumentosMinNC = generarDocsTxt(L_Documentos,D_ClasesMinNC,prefijo) 
 	D_TablasGI, D_Palabras = generarDiccTxt(L_DocumentosMinNC, D_ClasesMinNC, minNi,prefijo)
-	generarGananciaDeInformacion(D_TablasGI, D_Palabras,D_Clases,N,prefijo)
+	generarGananciaDeInformacion(D_TablasGI, D_Palabras,D_Clases,N,prefijo,numMejores)
 
 	final = default_timer()
 	print( "\n En total el programa tardó ", final-inicio)
@@ -21,4 +21,4 @@ def seleccionar_terminos(archivo, numMejores, minNc, minNi, prefijo):
 	# print (Datos)
 
 #seleccionar_terminos(NOMBRE_ARCHIVO,NUM_MEJORES,MIN_NC,MIN_NI,PREFIJO)
-seleccionar_terminos("TP3-Prueba_v2.sgm",8,1,1,"TP3_")
+seleccionar_terminos("reut2-001.sgm",2,1,3,"TP3_")
